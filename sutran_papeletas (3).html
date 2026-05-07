@@ -1,0 +1,550 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>SUTRAN - Papeletas de Infracción por Cinemómetro</title>
+<link href="https://fonts.googleapis.com/css2?family=Open+Sans:wght@400;600;700&display=swap" rel="stylesheet">
+<style>
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+
+  body {
+    font-family: 'Open Sans', sans-serif;
+    background: linear-gradient(160deg, #3ecde8 0%, #1ab8d8 30%, #009ec0 60%, #0080a0 100%);
+    min-height: 100vh;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    padding: 24px 16px 40px;
+  }
+
+  .logo-wrap {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    margin-bottom: 16px;
+  }
+  .brand-name {
+    font-size: 28px;
+    font-weight: 700;
+    color: #1a3a5c;
+    letter-spacing: 2px;
+  }
+
+  .titulo-panel {
+    background: #1a3a5c;
+    color: white;
+    font-size: 16px;
+    font-weight: 700;
+    text-align: center;
+    padding: 13px 30px;
+    border-radius: 6px 6px 0 0;
+    width: 100%;
+    max-width: 820px;
+  }
+
+  .card {
+    background: white;
+    border-radius: 0 0 10px 10px;
+    width: 100%;
+    max-width: 820px;
+    padding: 26px 40px 30px;
+    box-shadow: 0 6px 28px rgba(0,0,0,0.12);
+  }
+
+  .buscar-por { display: flex; align-items: center; gap: 8px; margin-bottom: 18px; }
+  .buscar-por .lbl { font-size: 13.5px; font-weight: 600; color: #333; margin-right: 6px; line-height: 1.4; }
+  .radio-option { display: flex; align-items: center; gap: 5px; margin-right: 20px; cursor: pointer; }
+  .radio-option input[type="radio"] { accent-color: #0099b8; width: 15px; height: 15px; cursor: pointer; }
+  .radio-option span { font-size: 13.5px; color: #333; }
+
+  hr.div1 { border: none; border-top: 1px solid #e2eaf0; margin: 4px 0 18px; }
+  hr.div2 { border: none; border-top: 1px solid #e2eaf0; margin: 20px 0 22px; }
+
+  .form-row { display: flex; align-items: center; margin-bottom: 15px; gap: 12px; }
+  .form-row label { font-size: 13.5px; color: #333; font-weight: 600; min-width: 148px; text-align: right; flex-shrink: 0; }
+  .form-row input[type="text"] {
+    flex: 1; border: 1.5px solid #c5d5de; border-radius: 22px;
+    padding: 8px 16px; font-size: 13.5px; color: #444; outline: none;
+    font-family: 'Open Sans', sans-serif; transition: border-color 0.2s; text-transform: uppercase;
+  }
+  .form-row input[type="text"]:focus { border-color: #0099b8; }
+  .form-row input[type="text"]::placeholder { color: #aabbc5; text-transform: none; }
+
+  .tipo-group { display: flex; gap: 8px; flex: 1; }
+  .tipo-group select {
+    border: 1.5px solid #c5d5de; border-radius: 22px; padding: 8px 30px 8px 14px;
+    font-size: 13.5px; color: #333; outline: none; background: white; cursor: pointer;
+    appearance: none; -webkit-appearance: none;
+    background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='11' height='11' viewBox='0 0 24 24' fill='none' stroke='%23666' stroke-width='2.5'%3E%3Cpolyline points='6 9 12 15 18 9'%3E%3C/polyline%3E%3C/svg%3E");
+    background-repeat: no-repeat; background-position: right 11px center;
+    font-family: 'Open Sans', sans-serif; min-width: 88px;
+  }
+  .tipo-group input[type="text"] { flex: 1; }
+
+  .verif-group { display: flex; align-items: center; gap: 8px; }
+  .verif-group input.cod-inp { width: 88px !important; flex: none !important; text-align: center; letter-spacing: 2px; font-weight: 600; }
+
+  .info-wrap { position: relative; display: inline-flex; }
+  .info-btn { width: 20px; height: 20px; background: #1a3a5c; border-radius: 50%; display: flex; align-items: center; justify-content: center; cursor: pointer; }
+  .info-btn span { color: white; font-size: 11px; font-weight: 700; font-style: italic; }
+  .tooltip {
+    display: none; position: absolute; background: #1a3a5c; color: white;
+    font-size: 11.5px; padding: 7px 11px; border-radius: 6px; width: 200px;
+    z-index: 20; top: 26px; left: -90px; line-height: 1.5; box-shadow: 0 4px 12px rgba(0,0,0,0.2);
+  }
+  .info-wrap:hover .tooltip { display: block; }
+
+  .captcha-lbl { font-size: 13px; color: #444; margin-bottom: 10px; }
+  .captcha-row { display: flex; align-items: center; gap: 14px; flex-wrap: wrap; }
+  .captcha-box {
+    background: #f0f4f7; border: 1px solid #ccd8e0; border-radius: 6px;
+    padding: 10px 20px; font-family: 'Georgia', serif; font-size: 24px;
+    font-weight: 900; color: #c0392b; letter-spacing: 8px;
+    position: relative; min-width: 120px; text-align: center; user-select: none; overflow: hidden;
+  }
+  .captcha-box .noise {
+    position: absolute; inset: 0;
+    background-image: repeating-linear-gradient(0deg, transparent, transparent 3px, rgba(100,120,160,0.06) 3px, rgba(100,120,160,0.06) 4px);
+    pointer-events: none;
+  }
+  .captcha-box .line1 { position: absolute; top: 45%; left: 5px; right: 5px; height: 1.5px; background: rgba(70,90,160,0.25); transform: rotate(-1.5deg); pointer-events: none; }
+  .captcha-text { position: relative; z-index: 1; }
+
+  .captcha-inp {
+    border: 1.5px solid #c5d5de; border-radius: 22px; padding: 9px 16px;
+    font-size: 13.5px; outline: none; width: 210px; font-family: 'Open Sans', sans-serif;
+    transition: border-color 0.2s; text-transform: uppercase;
+  }
+  .captcha-inp::placeholder { color: #aabbc5; text-transform: none; }
+
+  .btn-buscar {
+    background: #3a6ea5; color: white; border: none; border-radius: 22px;
+    padding: 9px 34px; font-size: 14px; font-weight: 600; cursor: pointer;
+    font-family: 'Open Sans', sans-serif; transition: background 0.2s, transform 0.1s;
+  }
+  .btn-buscar:hover { background: #2d5a8a; transform: translateY(-1px); }
+
+  .gen-row { display: flex; align-items: center; gap: 7px; margin-top: 10px; cursor: pointer; }
+  .gen-row span { font-size: 12.5px; color: #555; }
+  .gen-ico { width: 22px; height: 22px; background: #666; border-radius: 50%; display: flex; align-items: center; justify-content: center; transition: background 0.2s; }
+  .gen-row:hover .gen-ico { background: #0099b8; }
+  .gen-ico svg { width: 12px; height: 12px; }
+
+  .alert { display: none; margin-top: 14px; padding: 10px 16px; border-radius: 8px; font-size: 13px; font-weight: 600; }
+  .alert.error { background: #fdecea; color: #c0392b; border: 1px solid #f5c6c2; }
+
+  /* ── RESULTADO ── */
+  #bloque-resultado { display: none; width: 100%; max-width: 820px; }
+
+  .resultado-titulo {
+    background: #1a3a5c; color: white; font-size: 15px; font-weight: 700;
+    padding: 11px 20px; border-radius: 6px 6px 0 0;
+  }
+
+  .resultado-card {
+    background: white; border: 1px solid #c5d5de; border-top: none;
+    border-radius: 0 0 8px 8px; overflow: hidden;
+    box-shadow: 0 6px 28px rgba(0,0,0,0.12);
+  }
+
+  /* ── BANNER LIMPIO GRANDE ── */
+  .banner-limpio {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    padding: 36px 30px 28px;
+    background: linear-gradient(135deg, #e8f8f0 0%, #d4f0e2 100%);
+    border-bottom: 1px solid #a8dfc0;
+    text-align: center;
+    gap: 10px;
+  }
+  .banner-limpio .check-circle {
+    width: 72px; height: 72px; border-radius: 50%;
+    background: #27ae60;
+    display: flex; align-items: center; justify-content: center;
+    box-shadow: 0 4px 18px rgba(39,174,96,0.35);
+    margin-bottom: 6px;
+  }
+  .banner-limpio .check-circle svg { width: 40px; height: 40px; }
+  .banner-limpio .titulo-limpio {
+    font-size: 22px; font-weight: 700; color: #1a5c2e; line-height: 1.2;
+  }
+  .banner-limpio .subtitulo-limpio {
+    font-size: 13.5px; color: #2d7a4a; max-width: 420px; line-height: 1.6;
+  }
+
+  /* Badges estado doble */
+  .badges-row {
+    display: flex; align-items: center; justify-content: center;
+    gap: 10px; flex-wrap: wrap; margin-top: 6px;
+  }
+  .badge {
+    display: inline-flex; align-items: center; gap: 6px;
+    padding: 5px 16px; border-radius: 20px; font-size: 13px; font-weight: 700;
+  }
+  .badge.pagada  { background: #d4edda; color: #155724; border: 1px solid #28a745; }
+  .badge.anulada { background: #e2e3e5; color: #383d41; border: 1px solid #6c757d; }
+  .badge-dot { width: 8px; height: 8px; border-radius: 50%; background: currentColor; }
+
+  /* Grid datos */
+  .datos-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 0; }
+  .dato-item { padding: 11px 20px; border-bottom: 1px solid #eef2f5; border-right: 1px solid #eef2f5; }
+  .dato-item:nth-child(even) { border-right: none; }
+  .dato-item.full { grid-column: 1 / -1; border-right: none; }
+  .dato-label { font-size: 11px; color: #789; font-weight: 600; text-transform: uppercase; letter-spacing: 0.5px; margin-bottom: 3px; }
+  .dato-valor { font-size: 13.5px; color: #222; font-weight: 600; }
+  .dato-valor.tachado { text-decoration: line-through; color: #999; }
+
+  /* Caja monto anulado */
+  .monto-anulado {
+    background: #f5f5f5;
+    border: 1px solid #ccc;
+    border-radius: 8px;
+    padding: 14px 20px;
+    margin: 16px 20px;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    flex-wrap: wrap;
+    gap: 10px;
+  }
+  .monto-anulado .monto-label { font-size: 13px; color: #777; font-weight: 600; }
+  .monto-anulado .monto-valor { font-size: 20px; font-weight: 700; color: #999; text-decoration: line-through; }
+  .monto-anulado .monto-sub { font-size: 12px; color: #27ae60; font-weight: 700; margin-top: 2px; }
+
+  /* Nota final */
+  .nota-final {
+    background: #eafaf1;
+    border-top: 1px solid #a8dfc0;
+    padding: 14px 20px;
+    font-size: 13px;
+    color: #1a5c2e;
+    line-height: 1.7;
+  }
+  .nota-final strong { color: #155724; }
+
+  .btn-nueva {
+    display: inline-block; margin: 16px 20px 10px;
+    background: #6c757d; color: white; border: none; border-radius: 22px;
+    padding: 8px 24px; font-size: 13px; font-weight: 600; cursor: pointer;
+    font-family: 'Open Sans', sans-serif; transition: background 0.2s;
+  }
+  .btn-nueva:hover { background: #545b62; }
+
+  .footer-info { margin-top: 26px; max-width: 820px; width: 100%; }
+  .footer-info p { color: #003d6b; font-size: 13px; font-weight: 700; line-height: 1.75; }
+
+  @media (max-width: 560px) {
+    .card { padding: 20px 18px 24px; }
+    .form-row label { min-width: 110px; font-size: 12.5px; }
+    .datos-grid { grid-template-columns: 1fr; }
+    .dato-item { border-right: none; }
+  }
+</style>
+</head>
+<body>
+
+<!-- LOGO -->
+<div class="logo-wrap">
+  <svg width="52" height="52" viewBox="0 0 60 60" fill="none" xmlns="http://www.w3.org/2000/svg">
+    <circle cx="30" cy="30" r="28" fill="#1a3a5c"/>
+    <path d="M10 30 C14 22, 20 18, 26 22 C32 26, 36 30, 42 26 C46 23, 49 22, 51 22"
+          stroke="white" stroke-width="3" fill="none" stroke-linecap="round"/>
+    <path d="M10 36 C14 28, 20 24, 26 28 C32 32, 36 36, 42 32 C46 29, 49 28, 51 28"
+          stroke="#3ecde8" stroke-width="2.5" fill="none" stroke-linecap="round" opacity="0.85"/>
+    <path d="M10 42 C14 34, 20 30, 26 34 C32 38, 36 42, 42 38 C46 35, 49 34, 51 34"
+          stroke="#3ecde8" stroke-width="2" fill="none" stroke-linecap="round" opacity="0.5"/>
+  </svg>
+  <div class="brand-name">SUTRAN</div>
+</div>
+
+<!-- TÍTULO -->
+<div class="titulo-panel" id="titulo-main">Papeletas de Infracción por Cinemómetro</div>
+
+<!-- FORMULARIO -->
+<div class="card" id="card-form">
+  <div class="buscar-por">
+    <div class="lbl">Buscar<br>por:</div>
+    <label class="radio-option">
+      <input type="radio" name="buscar" value="acta" id="r-acta" checked>
+      <span>Acta/Papeleta</span>
+    </label>
+    <label class="radio-option">
+      <input type="radio" name="buscar" value="placa" id="r-placa">
+      <span>Placa</span>
+    </label>
+  </div>
+  <hr class="div1">
+
+  <div class="form-row" id="row-acta">
+    <label>Nº Acta/Papeleta:</label>
+    <input type="text" id="num-acta" placeholder="Ingrese el Nº de Acta">
+  </div>
+  <div class="form-row" id="row-placa" style="display:none">
+    <label>Nº de Placa:</label>
+    <input type="text" id="num-placa" placeholder="Ej: F3W794">
+  </div>
+
+  <div class="form-row">
+    <label>Tipo documento:</label>
+    <div class="tipo-group">
+      <select id="tipo-doc">
+        <option>DNI</option>
+        <option>CE</option>
+        <option>RUC</option>
+        <option>Pasaporte</option>
+      </select>
+      <input type="text" id="num-doc" placeholder="Ingrese documento">
+    </div>
+  </div>
+
+  <div class="form-row">
+    <label>Código Verificador:</label>
+    <div class="verif-group">
+      <input type="text" class="cod-inp" id="cod-verif" maxlength="8">
+      <div class="info-wrap">
+        <div class="info-btn"><span>i</span></div>
+        <div class="tooltip">El código verificador se encuentra impreso en su papeleta de infracción.</div>
+      </div>
+    </div>
+  </div>
+
+  <hr class="div2">
+
+  <div class="captcha-lbl">Por favor ingrese el código que se muestra en la imagen</div>
+  <div class="captcha-row">
+    <div class="captcha-box">
+      <div class="noise"></div>
+      <div class="line1"></div>
+      <span class="captcha-text" id="captcha-code">KIGC</span>
+    </div>
+    <input type="text" class="captcha-inp" id="captcha-inp" placeholder="Ingrese el código aquí" maxlength="6">
+    <button class="btn-buscar" onclick="buscar()">Buscar</button>
+  </div>
+  <div class="gen-row" onclick="generarCaptcha()">
+    <span>Generar código</span>
+    <div class="gen-ico">
+      <svg viewBox="0 0 24 24" fill="none" stroke="white" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
+        <polyline points="23 4 23 10 17 10"></polyline>
+        <path d="M20.49 15a9 9 0 1 1-2.12-9.36L23 10"></path>
+      </svg>
+    </div>
+  </div>
+  <div class="alert" id="alerta"></div>
+</div>
+
+<!-- RESULTADO -->
+<div id="bloque-resultado">
+  <div class="resultado-titulo">Resultado de Búsqueda — Papeleta de Infracción</div>
+  <div class="resultado-card">
+
+    <!-- BANNER LIMPIO -->
+    <div class="banner-limpio">
+      <div class="check-circle">
+        <svg viewBox="0 0 24 24" fill="none" stroke="white" stroke-width="2.8" stroke-linecap="round" stroke-linejoin="round">
+          <polyline points="20 6 9 17 4 12"></polyline>
+        </svg>
+      </div>
+      <div class="titulo-limpio">✅ Registro sin deuda pendiente</div>
+      <div class="subtitulo-limpio">
+        La papeleta consultada ha sido <strong>anulada y pagada</strong>. No existe obligación de pago vigente asociada a este registro.
+      </div>
+      <div class="badges-row">
+        <span class="badge pagada"><span class="badge-dot"></span> PAGADA</span>
+        <span class="badge anulada"><span class="badge-dot"></span> ANULADA</span>
+      </div>
+    </div>
+
+    <!-- DATOS -->
+    <div class="datos-grid">
+      <div class="dato-item full">
+        <div class="dato-label">Resolución de Sanción</div>
+        <div class="dato-valor" id="r-resolucion">—</div>
+      </div>
+      <div class="dato-item">
+        <div class="dato-label">Expediente N°</div>
+        <div class="dato-valor" id="r-expediente">—</div>
+      </div>
+      <div class="dato-item">
+        <div class="dato-label">Fecha de Resolución</div>
+        <div class="dato-valor" id="r-fecha">—</div>
+      </div>
+      <div class="dato-item">
+        <div class="dato-label">Conductor / Infractor</div>
+        <div class="dato-valor" id="r-conductor">—</div>
+      </div>
+      <div class="dato-item">
+        <div class="dato-label">DNI</div>
+        <div class="dato-valor" id="r-dni">—</div>
+      </div>
+      <div class="dato-item">
+        <div class="dato-label">Placa(s) del Vehículo</div>
+        <div class="dato-valor" id="r-placa-res">—</div>
+      </div>
+      <div class="dato-item">
+        <div class="dato-label">Infracción</div>
+        <div class="dato-valor" id="r-infraccion">—</div>
+      </div>
+      <div class="dato-item">
+        <div class="dato-label">Calificación</div>
+        <div class="dato-valor" id="r-calificacion">—</div>
+      </div>
+      <div class="dato-item">
+        <div class="dato-label">Lugar de Detección</div>
+        <div class="dato-valor" id="r-lugar">—</div>
+      </div>
+      <div class="dato-item">
+        <div class="dato-label">Fecha / Hora de Infracción</div>
+        <div class="dato-valor" id="r-hora">—</div>
+      </div>
+    </div>
+
+    <!-- MONTO ANULADO -->
+    <div class="monto-anulado">
+      <div>
+        <div class="monto-label">Monto de la Multa</div>
+        <div class="monto-sub">✔ Cancelada — Sin deuda vigente</div>
+      </div>
+      <div>
+        <div class="monto-valor" id="r-monto">S/ 1,030.00</div>
+      </div>
+    </div>
+
+    <!-- NOTA FINAL -->
+    <div class="nota-final">
+      <strong>📋 Estado del expediente:</strong> El presente expediente administrativo ha concluido. La resolución de sanción
+      fue <strong>anulada</strong> y el monto de la multa fue <strong>cancelado en su totalidad</strong>. No se requiere ninguna acción adicional.<br>
+      Para mayor información puede comunicarse a <strong>recordsutran@sutran.gob.pe</strong> citando el N° de expediente.
+    </div>
+
+    <button class="btn-nueva" onclick="nuevaBusqueda()">&#8592; Nueva búsqueda</button>
+  </div>
+</div>
+
+<!-- FOOTER -->
+<div class="footer-info">
+  <p>
+    En caso tenga inconvenientes con la información presentada comuníquese a través del correo<br>
+    recordsutran@sutran.gob.pe<br>
+    Horario de atención de 8:30 am a 5:30 pm.<br>
+    Recuerde que las infracciones M20 no tienen descuento. Para efectuar el pago de su multa solo necesita el número de su infracción.
+  </p>
+</div>
+
+<script>
+  const PAPELETAS = [
+    {
+      actas:  ['4026018592', '046584-2024-017', '046584', '3225023273'],
+      placas: ['F3W794', 'BER996'],
+      dnis:   ['45518552'],
+      resolucion:  'N° 4026018592-S-2026-SUTRAN/06.4.1',
+      expediente:  '046584-2024-017',
+      fecha:       '20 de abril de 2026',
+      conductor:   'ALEXANDER LLATAS DELGADO',
+      dni:         '45518552',
+      placa:       'F3W794 / BER996',
+      infraccion:  'P.26 — "Circular en horas no autorizadas"',
+      calificacion:'GRAVE — ANULADA',
+      lugar:       'Estación de Pesaje CERRO AZUL SUR',
+      hora:        '23 de abril de 2024 — 23:35:40 hrs.',
+      monto:       'S/ 1,030.00',
+    }
+  ];
+
+  const CHARS = 'ABCDEFGHJKLMNPQRSTUVWXYZ23456789';
+
+  function generarCaptcha() {
+    let c = '';
+    for (let i = 0; i < 4; i++) c += CHARS[Math.floor(Math.random() * CHARS.length)];
+    document.getElementById('captcha-code').textContent = c;
+    document.getElementById('captcha-inp').value = '';
+    ocultarAlerta();
+  }
+
+  function mostrarAlerta(msg) {
+    const a = document.getElementById('alerta');
+    a.textContent = msg; a.className = 'alert error'; a.style.display = 'block';
+  }
+  function ocultarAlerta() { document.getElementById('alerta').style.display = 'none'; }
+
+  function normalizar(s) { return s.trim().toUpperCase().replace(/[\s\-\/]/g, ''); }
+
+  function buscar() {
+    const captchaVal  = document.getElementById('captcha-inp').value.trim().toUpperCase();
+    const captchaReal = document.getElementById('captcha-code').textContent.trim();
+    const modo = document.querySelector('input[name="buscar"]:checked').value;
+
+    if (!captchaVal) { mostrarAlerta('⚠ Por favor ingrese el código captcha.'); return; }
+    if (captchaVal !== captchaReal) {
+      mostrarAlerta('✗ Código captcha incorrecto. Se generó un nuevo código.');
+      generarCaptcha(); return;
+    }
+
+    const doc   = normalizar(document.getElementById('num-doc').value);
+    const placa = normalizar(document.getElementById('num-placa').value);
+    const acta  = normalizar(document.getElementById('num-acta').value);
+
+    if (!doc) { mostrarAlerta('⚠ Ingrese el número de documento.'); return; }
+    if (modo === 'placa' && !placa) { mostrarAlerta('⚠ Ingrese el número de placa.'); return; }
+    if (modo === 'acta'  && !acta)  { mostrarAlerta('⚠ Ingrese el Nº de Acta/Papeleta.'); return; }
+
+    let encontrado = null;
+    for (const p of PAPELETAS) {
+      const matchDoc   = p.dnis.map(normalizar).includes(doc);
+      const matchPlaca = p.placas.map(normalizar).some(x => x === placa || x.includes(placa) || placa.includes(x));
+      const matchActa  = p.actas.map(normalizar).some(x => x === acta || x.includes(acta) || acta.includes(x));
+      if (modo === 'placa' && matchDoc && matchPlaca) { encontrado = p; break; }
+      if (modo === 'acta'  && matchDoc && matchActa)  { encontrado = p; break; }
+    }
+
+    if (!encontrado) {
+      mostrarAlerta('✗ No se encontraron papeletas con los datos ingresados. Verifique la información e intente nuevamente.');
+      generarCaptcha(); return;
+    }
+
+    mostrarResultado(encontrado);
+  }
+
+  function mostrarResultado(p) {
+    document.getElementById('r-resolucion').textContent  = p.resolucion;
+    document.getElementById('r-expediente').textContent  = p.expediente;
+    document.getElementById('r-fecha').textContent       = p.fecha;
+    document.getElementById('r-conductor').textContent   = p.conductor;
+    document.getElementById('r-dni').textContent         = p.dni;
+    document.getElementById('r-placa-res').textContent   = p.placa;
+    document.getElementById('r-infraccion').textContent  = p.infraccion;
+    document.getElementById('r-calificacion').textContent= p.calificacion;
+    document.getElementById('r-lugar').textContent       = p.lugar;
+    document.getElementById('r-hora').textContent        = p.hora;
+    document.getElementById('r-monto').textContent       = p.monto;
+
+    document.getElementById('card-form').style.display      = 'none';
+    document.getElementById('titulo-main').style.display    = 'none';
+    document.getElementById('bloque-resultado').style.display = 'block';
+    window.scrollTo({ top: 0, behavior: 'smooth' });
+  }
+
+  function nuevaBusqueda() {
+    document.getElementById('card-form').style.display        = 'block';
+    document.getElementById('titulo-main').style.display      = 'block';
+    document.getElementById('bloque-resultado').style.display = 'none';
+    ['num-doc','num-acta','num-placa','cod-verif','captcha-inp'].forEach(id => {
+      document.getElementById(id).value = '';
+    });
+    ocultarAlerta();
+    generarCaptcha();
+  }
+
+  document.querySelectorAll('input[name="buscar"]').forEach(r => {
+    r.addEventListener('change', function () {
+      const acta = this.value === 'acta';
+      document.getElementById('row-acta').style.display  = acta ? 'flex' : 'none';
+      document.getElementById('row-placa').style.display = acta ? 'none' : 'flex';
+      ocultarAlerta();
+    });
+  });
+</script>
+</body>
+</html>
